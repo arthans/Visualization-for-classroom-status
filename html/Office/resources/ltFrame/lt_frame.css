@@ -1,0 +1,158 @@
+@CHARSET "UTF-8";
+
+html,body{ 
+	margin:0px; 
+	padding:0px;
+	height:100%;
+	overflow:hidden;
+}
+
+#content {
+  margin-left: 225px;
+  margin-right: 0px;
+  margin-top: 70px;
+  margin-bottom: 0px;
+  height:calc(100% - 70px);  
+  overflow: auto;
+  position: relative;
+}
+
+#top_menu{
+  border-bottom: 5px solid #5DB477;
+  left: 0px;
+  right: 0;
+  top: 0px;
+  height: 65px;
+  line-height:65px;
+  z-index: 1111;
+  background: #ffffff;
+  position: fixed;
+}
+
+.person_info_pub{
+	float:right;
+	height: 65px;
+	width: 50px;
+	z-index: 1111;
+	background: #ffffff;
+	text-align : center;
+	padding-right:20px;
+	padding-left:5px;
+}
+
+.person_info_pub_s{
+	float:right;
+	height: 65px;
+	width: 70px;
+	z-index: 1111;
+	background: #ffffff;
+}
+
+ .person_info_pub:hover{
+	background : #EEEEEE;
+} 
+
+ .temp_menu_flag:hover{
+	background : #EEEEEE;
+} 
+
+#person_info_menu{
+
+  right: 0;
+  top: 65px;
+  width: 200px;
+  z-index: 2222;
+  background: #eeeeee;
+  position: fixed;
+  overflow: hidden;
+}
+
+.temp_menu_flag{
+	float:right;
+	height: 65px;
+	width: 140px;
+	z-index: 1111;
+	background: #ffffff;
+	display:inline-block;
+	vertical-align:middle;
+	text-align : center;
+}
+
+.person_info{
+	float:right;
+	height: 65px;
+	width: 180px;
+	z-index: 1111;
+	background: #ffffff;
+	display:inline-block;
+	vertical-align:middle;
+	text-align : center;
+}
+
+#bottom_menu{
+	margin-left: 200px;
+  left: 0px;
+  right: 0;
+  height: 44px;
+  bottom:0px;
+  z-index: 1111;
+  position: fixed;
+  overflow: hidden;
+  padding: 20px 0 10px 0;
+}
+
+.count-message{
+    display: none;
+    
+    height: 20px;
+    padding: 0 5px;
+    background-color: #FF5029;
+    font-size: 10px;
+    transform: scale(0.8);
+    border-radius: 13px;
+    line-height: 20px;
+    position: absolute;
+    color: #fff;
+}
+
+.head_picture{
+	transform: scale(0.8);
+	border-radius: 13px;
+	vertical-align:middle;
+}
+
+/* dd {
+    display: block;
+    -webkit-margin-start: 40px;
+} */
+
+/* #per_menu{
+    position:fixed !important;
+    right:95px !important;
+    top:72px !important;
+  
+    display: none;
+    width: 200px;
+    line-height: 36px;
+    padding: 5px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,.12);
+    border: 1px solid #d2d2d2;
+    background-color: #fff;
+    border-radius: 2px;
+    white-space: nowrap;
+    z-index:9999;
+} */
+
+#temp_menu{
+	position:fixed !important;
+    right:95px !important;
+    top:65px !important;
+  
+    display: none;
+    height:10px;
+    width: 200px;
+    background-color: #fff;
+    white-space: nowrap;
+    z-index:9999;
+}
+

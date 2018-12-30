@@ -1,0 +1,55 @@
+
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>浏览器下载</title>
+<link rel="stylesheet" type="text/css"
+	href="/Office/resources/layui/css/layui.css">
+<!-- JAVASCRIPTS -->
+<script src="/Office/resources/layui/layui.js"></script>
+<script src="/Office/resources/ltFrame/jquery.js"></script>
+<style>
+a {
+	margin-left: 50px;
+}
+</style>
+</head>
+</head>
+<body style="padding:50px;">
+	<blockquote class="layui-elem-quote layui-quote-nm">
+		为了更好的使用本系统，我们建议使用谷歌Chrome浏览器或IE11以上高版本浏览器，360浏览器请使用极速模式，IE8以下不支持！</blockquote>
+	<fieldset class="layui-elem-field layui-field-title"
+		style="margin-top: 50px;">
+		<legend>谷歌浏览器--推荐</legend>
+	</fieldset>
+	<a
+		href="http://www.google.cn/intl/zh-CN/chrome/browser/desktop/index.html"
+		target="_blank">在线下载谷歌最新版本浏览器 </a>
+	<fieldset class="layui-elem-field layui-field-title"
+		style="margin-top: 50px;">
+		<legend>火狐浏览器</legend>
+	</fieldset>
+	<a href="http://www.firefox.com.cn/" target="_blank">在线下载最新火狐浏览器 </a>
+	<fieldset class="layui-elem-field layui-field-title"
+		style="margin-top: 50px;">
+		<legend>Opera浏览器</legend>
+	</fieldset>
+	<a href="http://www.opera.com/zh-cn" target="_blank">在线下载最新Opera浏览器 </a>
+
+
+	<script type="text/javascript">
+		layui.use([ 'form', 'element' ], function() {
+			var form = layui.form() //只有执行了这一步，部分表单元素才会修饰成功
+			, layer = layui.layer;
+
+			var element = layui.element(); //Tab的切换功能，切换事件监听等，需要依赖element模块
+
+			form.render('select');
+
+			form.render('radio');
+			form.render('checkbox');
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>three.js webgl - cloth simulation</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			font-family: Monospace;
+			background-color: #000;
+			color: #000;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		#info {
+			position: absolute;
+			padding: 10px;
+			width: 100%;
+			text-align: center;
+		}
+
+		a {
+			text-decoration: underline;
+			cursor: pointer;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="info">教室空闲状态可视化系统<br />
+		<p id="sy_time"><br /></p>
+	</div>
+
+	<script src="js/three.js"></script>
+	<script src="/Office/resources/ltFrame/jquery.js"></script>
+	<script src="js/WebGL.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+	<script src="js/libs/stats.min.js"></script>
+	<script src='js/libs/dat.gui.min.js'></script>
+	<script src="js/loaders/GLTFLoader.js"></script>
+
+	<script>
+		/* testing cloth simulation */
+
+
+		if (WEBGL.isWebGLAvailable() === false) {
+
+			document.body.appendChild(WEBGL.getWebGLErrorMessage());
+
+		}
+
+		var container, stats;
+		var camera, scene, renderer;
+		var light;
+		var time = new Date();
+		var date = new Date();
+		var timeController = {
+			extraDay: 0,
+			extraTime: 0
+		};
+		var freeClassroom;
+		var mouse = new THREE.Vector2(),
+			INTERSECTED;
+		var classroomMesh = new Array();
+		var classroomTextMesh = new Array();
+		init();
+		animate();
+
+		function check(i) {
+			var num;
+			i < 10 ? num = "0" + i : num = i;
+			return num;
+		}
+
+		function getTime() {
+			var p = document.getElementById("sy_time");
+			year = date.getFullYear();
+			month = date.getMonth() + 1;
+			day = date.getDate();
+			hour = date.getHours();
+			minutes = date.getMinutes();
+			seconds = date.getSeconds();
+			str = "当前时间：" + year + "-" + month + "-" + day + " " + check(hour) + ":" + check(minutes) + ":" + check(seconds);
+			p.innerText = str;
+		}
+
+		function init() {
+
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			// scene
+
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0xcce0ff);
+			scene.fog = new THREE.Fog(0xcce0ff, 500, 10000);
+
+			// camera
+
+			camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 10000);
+			camera.position.set(-1000, 500, 1000);
+
+			// lights
+			scene.add(new THREE.AmbientLight(0x666666));
+			light = new THREE.DirectionalLight(0xdfebff, 1);
+			light.position.set(100, 100, 100);
+			light.castShadow = true;
+			light.shadow.mapSize.width = 10240
+			light.shadow.mapSize.height = 10240
+			var d = 5000;
+			light.shadow.camera.left = -d;
+			light.shadow.camera.right = d;
+			light.shadow.camera.top = d;
+			light.shadow.camera.bottom = -d;
+			light.shadow.camera.far = d;
+			scene.add(light);
+
+			function addObject(geometry, material, x, y, z, ry, shadow) {
+				var tmpMesh = new THREE.Mesh(geometry, material);
+				tmpMesh.position.set(x, y, z);
+				tmpMesh.rotation.y = ry;
+				tmpMesh.castShadow = shadow;
+				tmpMesh.receiveShadow = shadow;
+				scene.add(tmpMesh);
+				return tmpMesh;
+			}
+
+
+			var material = new THREE.MeshLambertMaterial({
+				transparent: true,
+				opacity: 0.7
+			});
+
+			var material1 = new THREE.LineBasicMaterial({
+				color: 0x008000
+			});
+
+			var loader = new THREE.GLTFLoader();
+			loader.load("scene.gltf", function (gltf) {
+				var model = gltf.scene;
+				model.position.set(0, 230, 0);
+				model.scale.set(0.04, 0.04, 0.04);
+				model.castShadow = true;
+				model.receiveShadow = true;
+				scene.add(model);
+			});
+
+			var Cylinder = new THREE.CylinderGeometry(100, 100, 50, 50, 1, false, -Math.PI / 2, Math.PI);
+			var midCube = new THREE.BoxBufferGeometry(171, 50, 1200);
+
+
+			addObject(new THREE.CylinderGeometry(100, 80, 80, 50, 1, false, -Math.PI / 2, Math.PI), material, 0, 40, 500, 0,
+				true);
+			addObject(Cylinder, material, 0, 105, 500, 0, true);
+			addObject(new THREE.CylinderGeometry(100, 100, 51, 50, 1, false, -Math.PI / 2, Math.PI), material, 0, 155, 500, 0,
+				true);
+
+
+			addObject(new THREE.BoxBufferGeometry(171, 80, 1200), material, 300, 40, 0, 0, true);
+			addObject(midCube, material, 300, 105, 0, 0, true);
+			addObject(midCube, material, 300, 155, 0, 0, true);
+			addObject(midCube, material, 300, 205, 0, 0, true);
+			addObject(new THREE.BoxBufferGeometry(171, 51, 1200), material, 300, 255, 0, 0, true);
+
+
+			addObject(new THREE.BoxBufferGeometry(270, 80, 1100), material, -240, 40, 0, 9.2, true);
+			addObject(new THREE.BoxBufferGeometry(270, 50, 1100), material, -240, 105, 0, 9.2, true);
+			addObject(new THREE.BoxBufferGeometry(270, 50, 1100), material, -240, 155, 0, 9.2, true);
+			addObject(new THREE.BoxBufferGeometry(270, 50, 1100), material, -240, 205, 0, 9.2, true);
+			addObject(new THREE.BoxBufferGeometry(270, 51, 1100), material, -240, 255, 0, 9.2, true);
+
+			addObject(new THREE.BoxBufferGeometry(450, 80, 100), material, 0, 40, 450, 0, true);
+			addObject(new THREE.BoxBufferGeometry(450, 50, 100), material, 0, 105, 450, 0, true);
+			addObject(new THREE.BoxBufferGeometry(450, 51, 100), material, 0, 155, 450, 0, true);
+
+
+			addObject(new THREE.BoxBufferGeometry(350, 80, 80), material, 50, 40, 0, 0, true);
+			for (i = 105; i <= 210; i = i + 50) {
+				addObject(new THREE.BoxBufferGeometry(350, 50, 80), material, 50, i, 0, 0, true);
+			}
+
+			addObject(new THREE.BoxBufferGeometry(240, 80, 80), material, 90, 40, -400, 0, true);
+			for (i = 105; i <= 210; i = i + 50) {
+				addObject(new THREE.BoxBufferGeometry(240, 50, 80), material, 90, i, -400, 0, true);
+			}
+			//classroom
+			var cylinder = new THREE.CylinderGeometry(95, 95, 50, 50, 1, false, -Math.PI / 2, Math.PI);
+			var classroom1 = new THREE.BoxBufferGeometry(100, 50, 80);
+			var classroom2 = new THREE.BoxBufferGeometry(105, 50, 100);
+
+			var classroom = [
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 105, 480, 0, false, 'X1214', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 105, 380, 0, false, 'X1213', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 105, 280, 0, false, 'X1212', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 105, 180, 0, false, 'X1211', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 105, 80, 0, false, 'X1210', 0],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 155, 480, 0, false, 'X1314', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 155, 380, 0, false, 'X1313', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 155, 280, 0, false, 'X1312', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 155, 180, 0, false, 'X1311', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 155, 80, 0, false, 'X1310', 0],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 205, 480, 0, false, 'X1414', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 205, 380, 0, false, 'X1413', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 205, 280, 0, false, 'X1412', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 205, 180, 0, false, 'X1411', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 205, 80, 0, false, 'X1410', 0],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 255, 480, 0, false, 'X1514', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 255, 380, 0, false, 'X1513', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 255, 280, 0, false, 'X1512', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 255, 180, 0, false, 'X1511', 0],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), 335, 255, 80, 0, false, 'X1510', 0],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -250, 105, 350, 9.2, false, 'X1220', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -225, 105, 250, 9.2, false, 'X1222', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -200, 105, 150, 9.2, false, 'X1224', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -175, 105, 50, 9.2, false, 'X1226', 2],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -250, 155, 350, 9.2, false, 'X1320', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -225, 155, 250, 9.2, false, 'X1322', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -200, 155, 150, 9.2, false, 'X1324', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -175, 155, 50, 9.2, false, 'X1326', 2],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -250, 205, 350, 9.2, false, 'X1420', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -225, 205, 250, 9.2, false, 'X1422', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -200, 205, 150, 9.2, false, 'X1424', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -175, 205, 50, 9.2, false, 'X1426', 2],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -250, 255, 350, 9.2, false, 'X1520', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -225, 255, 250, 9.2, false, 'X1522', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -200, 255, 150, 9.2, false, 'X1524', 2],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -175, 255, 50, 9.2, false, 'X1526', 2],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -390, 105, 350, 9.2, false, 'X1221', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -365, 105, 250, 9.2, false, 'X1223', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -340, 105, 150, 9.2, false, 'X1225', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -315, 105, 50, 9.2, false, 'X1227', 1],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -390, 155, 350, 9.2, false, 'X1321', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -365, 155, 250, 9.2, false, 'X1323', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -340, 155, 150, 9.2, false, 'X1325', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -315, 155, 50, 9.2, false, 'X1327', 1],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -390, 205, 350, 9.2, false, 'X1421', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -365, 205, 250, 9.2, false, 'X1423', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -340, 205, 150, 9.2, false, 'X1425', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -315, 205, 50, 9.2, false, 'X1427', 1],
+
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -390, 255, 350, 9.2, false, 'X1521', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -365, 255, 250, 9.2, false, 'X1523', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -340, 255, 150, 9.2, false, 'X1525', 1],
+				[classroom1, new THREE.LineBasicMaterial(0x008000), -315, 255, 50, 9.2, false, 'X1527', 1],
+
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290, 105, -100, 9.2, false, 'X1229', 1],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290 + 130 / 4.5, 105, -230, 9.2, false, 'X1231', 1],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290 + 260 / 4.5, 105, -360, 9.2, false, 'X1233', 1],
+
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290, 155, -100, 9.2, false, 'X1329', 1],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290 + 130 / 4.5, 155, -230, 9.2, false, 'X1331', 1],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290 + 260 / 4.5, 155, -360, 9.2, false, 'X1333', 1],
+
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290, 205, -100, 9.2, false, 'X1429', 1],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290 + 130 / 4.5, 205, -230, 9.2, false, 'X1431', 1],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290 + 260 / 4.5, 205, -360, 9.2, false, 'X1433', 1],
+
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290, 255, -100, 9.2, false, 'X1529', 1],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290 + 130 / 4.5, 255, -230, 9.2, false, 'X1531', 1],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -290 + 260 / 4.5, 255, -360, 9.2, false, 'X1533', 1],
+
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145, 105, -100, 9.2, false, 'X1230', 2],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145 + 130 / 4.5, 105, -230, 9.2, false, 'X1232', 2],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145 + 260 / 4.5, 105, -360, 9.2, false, 'X1234', 2],
+
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145, 155, -100, 9.2, false, 'X1330', 2],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145 + 130 / 4.5, 155, -230, 9.2, false, 'X1332', 2],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145 + 260 / 4.5, 155, -360, 9.2, false, 'X1334', 2],
+
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145, 205, -100, 9.2, false, 'X1430', 2],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145 + 130 / 4.5, 205, -230, 9.2, false, 'X1432', 2],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145 + 260 / 4.5, 205, -360, 9.2, false, 'X1434', 2],
+
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145, 255, -100, 9.2, false, 'X1530', 2],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145 + 130 / 4.5, 255, -230, 9.2, false, 'X1532', 2],
+				[classroom2, new THREE.LineBasicMaterial(0x008000), -145 + 260 / 4.5, 255, -360, 9.2, false, 'X1534', 2],
+
+				[cylinder, new THREE.LineBasicMaterial(0x008000), 0, 105, 500, 0, false, 'X1215', 3],
+				[cylinder, new THREE.LineBasicMaterial(0x008000), 0, 155, 500, 0, false, 'X1315', 3]
+			];
+
+			var loader = new THREE.FontLoader();
+			classroom.forEach(element => {
+				classroomMesh[element[7]] = addObject(element[0], element[1], element[2], element[3], element[4], element[5],
+					element[6]);
+				loader.load('fonts/helvetiker_regular.typeface.json', function (font) {
+					var shapes = font.generateShapes(element[7], 20);
+					var textGeometry = new THREE.ShapeBufferGeometry(shapes);
+					let x, y, theta;
+					if (element[8] === 0) {
+						y = 40;
+						x = 51;
+						theta = -Math.PI / 2;
+
+					}
+					else if (element[8] === 1) {
+						y = 55;
+						x = 51;
+						theta = Math.PI / 2;
+					}
+					else if (element[8] === 2) {
+						y = -50;
+						x = -50;
+						theta = -Math.PI / 2;
+					}
+					else if (element[8] === 3) {
+						y = 40;
+						x = -40;
+						theta = Math.PI;
+					}
+					classroomTextMesh[element[7]] = addObject(textGeometry, new THREE.MeshBasicMaterial(), element[2] - x, element[3] - 10, element[4] - y, theta + element[5], true);
+				});
+			});
+			//addObject(new THREE.PlaneBufferGeometry(190, 78), material1, 0, 0, 0, 0, false);
+			// ground
+			var loader = new THREE.TextureLoader();
+			var groundTexture = loader.load('textures/terrain/grasslight-big.jpg');
+			groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+			groundTexture.repeat.set(25, 25);
+			groundTexture.anisotropy = 16;
+			var groundMaterial = new THREE.MeshLambertMaterial({
+				map: groundTexture
+			});
+			var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(20000, 20000), groundMaterial);
+			mesh.position.y = 0;
+			mesh.rotation.x = -Math.PI / 2;
+			mesh.receiveShadow = true;
+			scene.add(mesh);
+
+			// renderer
+
+			renderer = new THREE.WebGLRenderer({
+				antialias: true
+			});
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			container.appendChild(renderer.domElement);
+			renderer.gammaInput = true;
+			renderer.gammaOutput = true;
+			renderer.shadowMap.enabled = true;
+
+			// controls
+			var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+			// performance monitor
+
+			stats = new Stats();
+			container.appendChild(stats.dom);
+
+			//
+
+			window.addEventListener('resize', onWindowResize, false);
+			document.addEventListener('mousemove', onDocumentMouseMove, false);
+			var timeChanger = function () {
+				$
+					.ajax({
+						url: "/Office/LoginController/lightPosition.do",
+						type: 'POST',
+						dataType: "json",
+						data: {
+							year: date.getFullYear(),
+							month: date.getMonth() + 1,
+							day: date.getDate(),
+							hour: date.getHours(),
+							minute: date.getMinutes()
+						},
+						success: function (data) {
+							light.position.set(data.x, data.y, data.z);
+							if (data.z < 0) {
+								light.visible = false;
+							} else {
+								light.visible = true;
+							}
+						}
+					});
+				$
+					.ajax({
+						url: "/Office/LoginController/queryCanUseClassroom.do",
+						type: 'POST',
+						dataType: "json",
+						data: {
+							year: date.getFullYear(),
+							month: date.getMonth() + 1,
+							day: date.getDate(),
+							hour: date.getHours(),
+							minute: date.getMinutes()
+						},
+						success: function (data) {
+							freeClassroom = data;
+						}
+					});
+			}
+			var gui = new dat.GUI();
+			gui.width = 500;
+			gui.add(timeController, 'extraTime', 0, 24 * 60, 1).onChange(timeChanger);
+			gui.add(timeController, 'extraDay', 0, 2, 1).onChange(timeChanger);
+			timeChanger();
+		}
+
+
+		function onDocumentMouseMove(event) {
+			event.preventDefault();
+			mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+			mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+		}
+
+		//
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		}
+
+		//
+
+		function animate() {
+			requestAnimationFrame(animate);
+			render();
+			stats.update();
+		}
+
+		function render() {
+			time = new Date();
+			date.setTime(time.getTime() + timeController.extraTime * 1000 * 60 + timeController.extraDay * 1000 * 60 * 60 * 24)
+			getTime()
+			for (var roomName in classroomMesh) {
+				classroomMesh[roomName].material.color.setHex(0x800000);
+				classroomTextMesh[roomName].material.color.setHex(0x006699);
+			}
+			for (var roomName of freeClassroom) {
+				if (classroomMesh[roomName] != undefined) {
+					classroomMesh[roomName].material.color.setHex(0x008000);
+					classroomTextMesh[roomName].material.color.setHex(0x660099);
+				}
+			}
+			renderer.render(scene, camera);
+		}
+	</script>
+</body>
+
+</html>

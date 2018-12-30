@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+	<title>办事服务平台-VATUU为途教学信息服务平台</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="keywords" content="VATUU,为途,教学信息服务平台,教务管理系统,教务网,教务系统" />
+	<meta name="description" content="VATUU为途，专注于高等教育信息化，中国领先的教学信息化解决方案服务商" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<script src="/Office/resources/layui/layui.js"></script>
+	<link rel="stylesheet" href="/Office/resources/layui/css/layui.css">
+	<link rel="stylesheet" href="/Office/resources/ltFrame/loginPage.css">
+	<link rel="stylesheet" href="/Office/resources/ltFrame/lt_frame.css">
+	<script src="/Office/resources/ltFrame/jquery.js"></script>
+	<script src="/Office/resources/js/URR/Ps.js"></script>
+	<script src="/Office/resources/js/slideunlock/jquery.slideunlock.js"></script>
+	<link href="/Office/resources/css/slideunlock/slide-unlock.css" rel="stylesheet">
+
+</head>
+
+<body>
+	<div class="login-wrap" style="height:320px;">
+		<form class="layui-form" name="form1" action="" method="post" style="margin-top:-18px;">
+			<div style="line-height:40px;">
+				<span style="float:center;font-size : 1.5em;color:#2B2E37;">
+					<img src="/Office/resources/ltFrame/images/loginIcon.png" height="63px"><br /> 登录
+				</span>
+			</div>
+			&nbsp;&nbsp;&nbsp;
+
+			<div style="line-height:37px;">
+				<span style="width:15px;float:left;">&nbsp;</span> <span style="float:left;width:280px;"> <input maxlength='20'
+					 type="text" id="username" name="accountName" lay-verify="title" autocomplete="off" placeholder="学号/工资号" class="layui-input">
+				</span>
+			</div>
+			<br /> <br /> <br />&nbsp;&nbsp;&nbsp;
+			<div style="line-height:37px;">
+				<span style="width:15px;float:left;">&nbsp;</span> <span style="float:left;width:280px;"> <input maxlength='20'
+					 type="password" id="password" name="password" placeholder="教务网密码/身份证号后6位" autocomplete="off" class="layui-input">
+				</span>
+			</div>
+			<br /> <br />&nbsp;&nbsp;&nbsp;
+
+			<div id="popup-captcha" style="margin-left:15px;"></div>
+			<br /> <input type="button" class="layui-btn" style="width:300px;" id="btn_login" value="登录"> <br>
+			<br>
+			<a href="http://ids.swjtu.edu.cn:80/amserver/UI/Login?goto=http%3A%2F%2Froom.swjtu.edu.cn%2FOffice%2FLoginController%2FunifiedAuthentication.htm"><b>
+					<font color=red>使用校OA系统帐号登录</font>
+				</b>&nbsp;&nbsp;</a>
+			<a href="/Office/LoginController/toUserHelpPage.htm" target="_blank"><b>登录说明</b></a>&nbsp;&nbsp; <a href="toBrowserDowload.htm"
+			 target="_blank"><b>浏览器要求</b></a>
+		</form>
+	</div>
+	<!-- 极限验证js -->
+	<script src="js/gt.js"></script>
+	<!--<script src="http://static.geetest.com/static/tools/gt.js"></script>-->
+	<script type="text/javascript">
+
+		layui.use('layer', function () {
+			var $ = layui.jquery, layer = layui.layer;
+		});
+
+
+		/*检测IE低于8.0*/
+		var DEFAULT_VERSION = 8;
+		var ua = navigator.userAgent.toLowerCase();
+		var isIE = ua.indexOf("msie") > -1;
+		var safariVersion;
+		if (isIE) {
+			safariVersion = ua.match(/msie ([\d.]+)/)[1];
+			var sa = parseInt(safariVersion);
+			if (safariVersion <= DEFAULT_VERSION) {
+				//alert("ie8以下")
+
+			} else {
+				//alert("ie8以上")
+			}
+		} else {
+
+		}
+
+		/* window.onerror = function() {
+			layer.msg("请联网加载验证码!");
+			return true;
+		} */
+
+		/*jixian*/
+		initCaptcha();
+		///////////////////////////////////////
+		var handlerPopup = function (captchaObj) {
+			// 成功的回调
+			captchaObj.onSuccess(function () {
+				var validate = captchaObj.getValidate();
+				secondValidete(validate);
+			});
+			$("#btn_login")
+				.click(
+					function (e) {
+						var th = document.form1;
+						if (th.accountName.value == "") {
+							layer.msg("用户名不能为空(五秒后自动关闭)", {
+								time: 2000, //20s后自动关闭
+								btn: ["关闭"]
+							});
+							th.accountName.focus();
+							return;
+						} else if (th.password.value == "") {
+							layer.msg("密码不能为空(五秒后自动关闭)", {
+								time: 2000, //5s后自动关闭
+								btn: ["关闭"]
+							});
+							th.password.focus();
+							return;
+						} else if (th.password.value.length < 6 || th.password.value.length > 15) {
+							layer.msg("密码请保持大于六位小于15位(五秒后自动关闭)", {
+								time: 2000, //5s后自动关闭
+								btn: ["关闭"]
+							});
+							th.password.focus();
+							return;
+						} else {
+							//captchaObj.show();
+							//initCaptcha();
+							var validate = captchaObj.getValidate();
+							if (!validate) {
+								layer.msg("请验证验证码！", {
+									time: 2000,
+									btn: ["关闭"]
+								});
+								e.preventDefault();
+								return;
+							} else {
+								secondValidete(validate);
+							}
+						}
+					});
+
+			// 将验证码加到id为captcha的元素里
+			$("#popup-captcha").empty();
+			captchaObj.appendTo("#popup-captcha");
+		};
+
+		function initCaptcha() {
+			$("#popup-captcha").empty();
+			// 验证开始需要向网站主后台获取id，challenge，success（是否启用failback）
+			$
+				.ajax({
+					url: "/Office/LoginController/initGeetest.do?t="
+						+ (new Date()).getTime(), // 加随机数防止缓存
+					type: "get",
+					dataType: "json",
+					success: function (data) {
+						console.log("l=init")
+						// 使用initGeetest接口
+						// 参数1：配置参数
+						// 参数2：回调，回调的第一个参数验证码对象，之后可以使用它做appendTo之类的事件
+						initGeetest({
+							gt: data.gt,
+							challenge: data.challenge,
+							product: "float", // 产品形式，包括：float，embed，popup。注意只对PC版验证码有效
+							offline: !data.success
+						}, handlerPopup);
+					}
+				});
+		}
+		///////////////////////////////////////////
+
+		function secondValidete(validate) {
+			$
+				.ajax({
+					url: "/Office/LoginController/login.do", // 进行二次验证
+					type: "post",
+					dataType: "json",
+					data: {
+						username: $('#username').val(),
+						password: $('#password').val(),
+						geetest_challenge: validate.geetest_challenge,
+						geetest_validate: validate.geetest_validate,
+						geetest_seccode: validate.geetest_seccode
+					},
+					success: function (data) {
+						console.log(data)
+						if (data) {
+							if (data.status === "success") {
+								if (data.pass_result === "success") {
+									if (data.isAdmin === 1) {
+										//window.location.href = "/Office/LoginController/"
+										//直接弹框验证
+										layer
+											.open({
+												type: 2,
+												title: '请输入验证码',
+												shadeClose: false,
+												shade: 0.8,
+												area: ['500px', '45%'],
+												content: '/Office/LoginController/toAdminLoginCode.do'
+											});
+									} else {
+										window.location.href = "/Office/LoginController/success.htm";
+									}
+								} else {
+									layer.msg("用户名或密码错误！", {
+										time: 2000,
+										btn: ["关闭"]
+									});
+								}
+							} else {
+								layer.msg("验证码验证失败！", {
+									time: 2000,
+									btn: ["关闭"]
+								});
+							}
+						} else {
+							layer.msg("服务器歇气了");
+						}
+					}
+				});
+		}
+	</script>
+</body>
+
+</html>

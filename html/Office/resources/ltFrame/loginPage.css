@@ -1,0 +1,39 @@
+@CHARSET "UTF-8";
+
+.login-wrap {
+	  margin: auto;  
+	  position: absolute;  
+	  top: -55; left: 0; bottom: 0; right: 0;  
+	  text-align: center;
+	  background: rgba(256,256,256,1);
+	  padding: 40px 40px;
+	  width:310px;
+	  height:300px;
+	  color: #000;
+}
+
+body{
+	background:url(./images/backPicture.jpg) no-repeat center center fixed;
+    -webkit-background-size:cover;
+    -moz-background-size:cover;
+    -o-background-size:cover;
+    background-size:cover;
+} 
+
+.forgotPwd{
+	margin-right:16px;
+	float: right;
+    color: #009688;
+    font-size: 12px;
+}
+
+a:hover {
+	color: #009688;
+    text-decoration: underline;
+}
+
+
+
+
+
+

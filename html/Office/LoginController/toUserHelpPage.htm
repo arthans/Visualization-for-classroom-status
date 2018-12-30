@@ -1,0 +1,81 @@
+
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>简易说明</title>
+<!--  <link rel="stylesheet" type="text/css"
+	href="/Office/resources/layui/css/layui.css">-->
+<link rel="stylesheet" href="/Office/resources/layui/css/layui.css"  media="all">
+<link rel="stylesheet" href="/Office/resources/layui/css/global.css" media="all">
+<!-- JAVASCRIPTS -->
+<script src="/Office/resources/layui/layui.js"></script>
+<script src="/Office/resources/ltFrame/jquery.js"></script>
+</head>
+</head>
+<body style="padding:30px;">
+	<fieldset class="layui-elem-field layui-field-title"
+		style="margin-top: 20px;">
+		<legend>简易帮助文档</legend>
+	</fieldset>
+	<div class="site-tips site-text">
+      <p><strong>1、什么是网上办事平台，我能做什么？</strong></p>
+    </div>
+    <div class="site-text">
+      <p>网上办事平台是一款基于互联网的无纸化办公系统，能够处理本科教学中的大多数问题，包括基本教学业务处理、在线咨询、疑难解答、智能问答等。</p>
+    </div>
+    <div class="site-tips site-text">
+      <p><strong>2、登录平台基本要求及联系方式</strong></p>
+    </div>
+    <div class="site-text">
+      <p>目前本平台仅支持IE8以上浏览器版本，推荐使用谷歌Chrome浏览器，<a href="toBrowserDowload.do" target=_blank><u>点击下载</u></a>。支持全校本科生（2001年入学的全部本科生均可登录）、教职工等用户登录。登录平台请完善个人手机号和电子邮箱，手机号是本平台非常关键的信息，每一次咨询和业务办理更新都将通过短信和电子邮件通知，更新手机号请“点击右上角的个人姓名--更新个人信息”即可，如果手机号发生变更，请及时更新。
+      <br>
+      学生登录请使用学号+教务网密码，教师登录请使用本人工资号+教务网密码（如没有教务网账号则默认密码为身份证号后6位）
+      </p>
+    </div>
+    <div class="site-tips site-text">
+      <p><strong>3、在线工单是什么？如何使用</strong></p>
+    </div>
+    <div class="site-text">
+      <p>在线工单是平台推出的一款OA办公系统，任何用户都可以通过在线工单提交问题（如果相关证明材料请以附件提交），所有的问题都会有专门的工作人员进行处理，一般会在3个工作日之内进行回复处理。</p>
+    </div>
+    <div class="site-tips site-text">
+      <p><strong>4、如何借用教室？有哪些要求？</strong></p>
+    </div>
+    <div class="site-text">
+      <p>目前已经实现了教室借用全程无纸化管理，将不再出具书面借用证明。任何用户都可以通过系统提交借用申请，学生提交的借用申请需要管理员审核后才能生效。借用申请审核通过后会通过短信和系统通知给物管，请自行联系物管即可。注意所有的教室借用不能用于商务活动或校外人员使用，仅限校内使用。</p>
+    </div>
+    <div class="site-tips site-text">
+      <p><strong>5、补办学生证、考试报名费用如何支付？</strong></p>
+    </div>
+    <div class="site-text">
+      <p>本平台支持微信和支付宝支付，在补办学生证、考试报名时请使用以上两种方式支付。</p>
+    </div>
+    <div class="site-tips site-text">
+      <p><strong>6、转专业等业务流程办理的时间</strong></p>
+    </div>
+    <div class="site-text">
+      <p>每一项业务都会在特定的时间才可以申请，点击网上业务办理的相关链接，会有相应的提示，按照系统提示申请办理即可。</p>
+    </div>
+    <div class="site-tips site-text">
+      <p style="color:#ff0000"><strong>7、使用学校OA系统账号登录</strong></p>
+    </div>
+    <div class="site-text">
+      <p>系统支持使用学校统一身份验证登录，点击登录界面的“使用学校OA系统账号登录”即可。</p>
+    </div>
+
+	<script type="text/javascript">
+		layui.use([ 'form', 'element' ], function() {
+			var form = layui.form() //只有执行了这一步，部分表单元素才会修饰成功
+			, layer = layui.layer;
+
+			var element = layui.element(); //Tab的切换功能，切换事件监听等，需要依赖element模块
+
+			form.render('select');
+
+			form.render('radio');
+			form.render('checkbox');
+		});
+	</script>
+</body>
+</html>
